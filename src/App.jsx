@@ -1,8 +1,10 @@
+
+
 function App() {
 
   return (
     <>
-      <h1>init</h1>
+      <h1 className="text-3xl font-bold underline">init</h1>
     </>
   )
 }
