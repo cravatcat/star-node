@@ -9,10 +9,9 @@ import 'katex/dist/katex.min.css'
 interface MarkdownPreviewProps {
   content: string
   className?: string
-  showQuotationMarks?: boolean // 是否显示引用块的引号
 }
 
-export function MarkdownPreview({ content, className = '', showQuotationMarks = false }: MarkdownPreviewProps) {
+export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProps) {
   const components: Components = {
     code({ className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || '')
@@ -80,7 +79,7 @@ export function MarkdownPreview({ content, className = '', showQuotationMarks = 
   }
 
   return (
-    <div className={`prose prose-slate max-w-none prose-code:before:content-none prose-code:after:content-none prose-blockquote:not-italic prose-blockquote:font-normal ${showQuotationMarks ? '' : 'prose-blockquote:before:content-none prose-blockquote:after:content-none'} ${className}`}>
+    <div className={`prose prose-slate max-w-none ${className}`}>
       <ReactMarkdown 
         components={components}
         remarkPlugins={[remarkMath]}

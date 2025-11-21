@@ -119,3 +119,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+@utility prose-slate {
+  --tw-prose-pre-bg: var(--color-white);
+}
