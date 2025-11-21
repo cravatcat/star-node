@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { MarkdownPreview } from "@/components/markdown/MarkdownPreview"
+import { TableOfContents } from "@/components/TableOfContents"
 
 // 导入 Markdown 文件
 import twoSumMd from "@/algorithmNote/ 1-twoSum/1.twoSum.md?raw"
@@ -22,14 +23,7 @@ const problems = [
   }
 ]
 
-// 为了保持列表长度，我们暂时保留原来的占位符，实际项目中应该只显示有的题目
-const demoProblems = Array.from({ length: 8 }, (_, i) => ({
-  id: `${i + 3}`,
-  title: `算法题 ${i + 3}`,
-  content: "# 待补充\n\n该题目题解暂未上传。"
-}))
-
-const allProblems = [...problems, ...demoProblems]
+const allProblems = [...problems]
 
 function AlgorithmProblem() {
   const { id } = useParams()
@@ -40,8 +34,15 @@ function AlgorithmProblem() {
   }
 
   return (
-    <div className="space-y-4">
-      <MarkdownPreview content={problem.content} />
+    <div className="flex gap-8">
+      <div className="flex-1 min-w-0">
+        <MarkdownPreview content={problem.content} />
+      </div>
+      <aside className="hidden xl:block w-64 shrink-0">
+        <div className="sticky top-24">
+          <TableOfContents content={problem.content} />
+        </div>
+      </aside>
     </div>
   )
 }

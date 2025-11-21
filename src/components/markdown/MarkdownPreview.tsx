@@ -6,6 +6,8 @@ import rehypeKatex from 'rehype-katex'
 import type { Components } from 'react-markdown'
 import 'katex/dist/katex.min.css'
 
+import { generateSlug } from '@/lib/utils'
+
 interface MarkdownPreviewProps {
   content: string
   className?: string
@@ -68,18 +70,26 @@ export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProp
     },
     // 优化标题样式
     h1({ children }) {
-      return <h1 className="text-3xl font-bold mt-6 mb-4 text-gray-900">{children}</h1>
+      const text = String(children)
+      const id = generateSlug(text)
+      return <h1 id={id} className="text-3xl font-bold mt-6 mb-4 text-gray-900 scroll-mt-20">{children}</h1>
     },
     h2({ children }) {
-      return <h2 className="text-2xl font-bold mt-5 mb-3 text-gray-900">{children}</h2>
+      const text = String(children)
+      const id = generateSlug(text)
+      return <h2 id={id} className="text-2xl font-bold mt-5 mb-3 text-gray-900 scroll-mt-20">{children}</h2>
     },
     h3({ children }) {
-      return <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-900">{children}</h3>
+      const text = String(children)
+      const id = generateSlug(text)
+      return <h3 id={id} className="text-xl font-semibold mt-4 mb-2 text-gray-900 scroll-mt-20">{children}</h3>
     },
   }
 
   return (
-    <div className={`prose prose-slate max-w-none ${className}`}>
+        // <div className={`prose prose-slate max-w-none prose-code:before:content-none prose-code:after:content-none prose-blockquote:not-italic prose-blockquote:font-normal ${showQuotationMarks ? '' : 'prose-blockquote:before:content-none prose-blockquote:after:content-none'} ${className}`}>
+
+    <div className={`prose prose-slate max-w-none prose-code:before:content-none prose-code:after:content-none ${className}`}>
       <ReactMarkdown 
         components={components}
         remarkPlugins={[remarkMath]}
