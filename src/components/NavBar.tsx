@@ -37,17 +37,18 @@ export function NavBar() {
             <NavigationMenuList>
               {routes.map(route => (
                 <NavigationMenuItem key={route.path}>
-                  <Link to={route.path}>
-                    <NavigationMenuLink 
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        "bg-transparent",
-                        location.pathname === route.path && "bg-accent text-accent-foreground"
-                      )}
-                    >
+                  <NavigationMenuLink
+                    asChild
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "bg-transparent",
+                      location.pathname === route.path && "bg-accent text-accent-foreground"
+                    )}
+                  >
+                    <Link to={route.path}>
                       {route.label}
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
             </NavigationMenuList>

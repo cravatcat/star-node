@@ -17,7 +17,7 @@ export const routes: RouteConfig[] = [
     element: <HomePage />,
   },
   {
-    path: "/algorithm",
+    path: "/algorithm/*",
     label: "算法",
     element: <AlgorithmPage />,
   },
