@@ -2,15 +2,15 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { MapVisualizer, type MapItem } from './MapVisualizer'
 
 interface SmartMapVisualizerProps {
-  data: MapItem[] | Map<string | number, string | number>
+  data: MapItem[] | Map<string | number, any>
   title?: string
   className?: string
   highlightDuration?: number
   externalHighlightKeys?: (string | number)[]
 }
 
-function useMapDiff(currentMap: Map<string | number, string | number>) {
-  const prevMapRef = useRef<Map<string | number, string | number>>(new Map())
+function useMapDiff(currentMap: Map<string | number, any>) {
+  const prevMapRef = useRef<Map<string | number, any>>(new Map())
   const isFirstRenderRef = useRef(true)
   
   const diff = useMemo(() => {

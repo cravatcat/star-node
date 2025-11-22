@@ -4,10 +4,15 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function HomePage() {
-  const [mapData, setMapData] = useState(new Map<string, number>([
+  const [mapData, setMapData] = useState<Map<string, any>>(new Map<string, any>([
     ['apple', 5],
     ['banana', 3],
-    ['orange', 8]
+    ['orange', 8],
+    ['config', { theme: 'dark', version: '1.0.0' }],
+    ['metadata', new Map([
+      ['author', 'John'],
+      ['created', '2024']
+    ])]
   ]))
   const [counter, setCounter] = useState(10)
 
@@ -23,6 +28,19 @@ export default function HomePage() {
     })
   }
 
+  const addNestedItem = () => {
+    setMapData(prev => {
+      const next = new Map(prev)
+      next.set(`user_${counter}`, new Map<string, any>([
+        ['id', counter],
+        ['role', 'admin'],
+        ['permissions', { read: true, write: false }]
+      ]))
+      return next
+    })
+    setCounter(c => c + 1)
+  }
+
   const updateRandomItem = () => {
     const keys = Array.from(mapData.keys())
     if (keys.length === 0) return
@@ -32,7 +50,19 @@ export default function HomePage() {
     
     setMapData(prev => {
       const next = new Map(prev)
-      next.set(randomKey, newValue)
+      // Only update if it's a number to avoid overwriting nested structures with numbers for this demo
+      if (typeof prev.get(randomKey) === 'number') {
+          next.set(randomKey, newValue)
+      } else {
+          // If it's complex, maybe update a property inside?
+          // For simplicity, let's just skip or force update
+          // Let's try to find a number key
+          const numberKeys = keys.filter(k => typeof prev.get(k) === 'number')
+          if (numberKeys.length > 0) {
+             const k = numberKeys[Math.floor(Math.random() * numberKeys.length)]
+             next.set(k, newValue)
+          }
+      }
       return next
     })
   }
@@ -85,6 +115,9 @@ export default function HomePage() {
           <div className="flex flex-wrap gap-2">
             <Button onClick={addRandomItem} variant="default">
               ➕ 添加随机项
+            </Button>
+            <Button onClick={addNestedItem} variant="default" className="bg-purple-600 hover:bg-purple-700 text-white">
+              📦 添加嵌套项
             </Button>
             <Button onClick={updateRandomItem} variant="secondary">
               🔄 更新随机项
