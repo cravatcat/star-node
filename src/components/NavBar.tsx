@@ -35,22 +35,27 @@ export function NavBar() {
           </Link>
           <NavigationMenu>
             <NavigationMenuList>
-              {routes.map(route => (
-                <NavigationMenuItem key={route.path}>
-                  <NavigationMenuLink
-                    asChild
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      "bg-transparent",
-                      location.pathname === route.path && "bg-accent text-accent-foreground"
-                    )}
-                  >
-                    <Link to={route.path}>
-                      {route.label}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
+              {routes.map(route => {
+                const linkPath = route.path.replace(/\/\*$/, "")
+                const isActive = location.pathname === linkPath || (linkPath !== "/" && location.pathname.startsWith(linkPath))
+                
+                return (
+                  <NavigationMenuItem key={route.path}>
+                    <NavigationMenuLink
+                      asChild
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        "bg-transparent",
+                        isActive && "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      <Link to={linkPath}>
+                        {route.label}
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )
+              })}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
