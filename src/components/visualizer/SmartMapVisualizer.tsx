@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { MapVisualizer, type MapItem } from './MapVisualizer'
 
 interface SmartMapVisualizerProps {
@@ -9,6 +9,45 @@ interface SmartMapVisualizerProps {
   externalHighlightKeys?: (string | number)[]
 }
 
+function useMapDiff(currentMap: Map<string | number, string | number>) {
+  const prevMapRef = useRef<Map<string | number, string | number>>(new Map())
+  const isFirstRenderRef = useRef(true)
+  
+  const diff = useMemo(() => {
+    // 首次渲染不计算差异
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false
+      return { changes: [], deletions: [] }
+    }
+
+    const prevMap = prevMapRef.current
+    const changes: (string | number)[] = []
+    const deletions: (string | number)[] = []
+
+    // 检测新增和变更
+    currentMap.forEach((value, key) => {
+      if (!prevMap.has(key) || prevMap.get(key) !== value) {
+        changes.push(key)
+      }
+    })
+    
+    // 检测删除
+    prevMap.forEach((_, key) => {
+      if (!currentMap.has(key)) {
+        deletions.push(key)
+      }
+    })
+    
+    return { changes, deletions }
+  }, [currentMap])
+
+  useEffect(() => {
+    prevMapRef.current = new Map(currentMap)
+  }, [currentMap])
+
+  return diff
+}
+
 export function SmartMapVisualizer({
   data,
   title,
@@ -16,110 +55,117 @@ export function SmartMapVisualizer({
   highlightDuration = 1000,
   externalHighlightKeys = []
 }: SmartMapVisualizerProps) {
-  // 显示列表，包含正常数据和正在执行删除动画的数据
+  // === 状态定义 ===
   const [displayData, setDisplayData] = useState<MapItem[]>([])
-  // 正在高亮（新增/修改）的 keys
-  const [autoHighlightKeys, setAutoHighlightKeys] = useState<(string | number)[]>([])
-  // 正在删除的 keys
-  const [deletingKeys, setDeletingKeys] = useState<(string | number)[]>([])
+  const [highlightingKeys, setHighlightingKeys] = useState<Set<string | number>>(new Set())
+  const [deletingKeys, setDeletingKeys] = useState<Set<string | number>>(new Set())
   
-  // 使用 ref 存储上一次的 data 转换后的 Map，用于对比
-  const prevDataMapRef = useRef<Map<string | number, string | number>>(new Map())
-  // 存储正在删除的项，避免在 data 更新时丢失
-  const deletingItemsRef = useRef<Map<string | number, MapItem>>(new Map())
+  // 用于清理定时器，防止内存泄漏
+  const timersRef = useRef<number[]>([])
 
-  useEffect(() => {
-    // 1. 将传入的 data 转为 Map 和 Array
-    const nextDataMap = data instanceof Map 
+  // 1. 数据标准化
+  const nextDataMap = useMemo(() => {
+    return data instanceof Map 
       ? data 
       : new Map(data.map(item => [item.key, item.value]))
+  }, [data])
+
+  // 2. 计算差异
+  const { changes, deletions } = useMapDiff(nextDataMap)
+
+  // === 副作用分离 ===
+
+  // Effect 1: 处理高亮 (Highlighting)
+  useEffect(() => {
+    if (changes.length === 0) return
+
+    // 添加高亮
+    setHighlightingKeys(prev => {
+      const next = new Set(prev)
+      changes.forEach(key => next.add(key))
+      return next
+    })
     
-    const nextDataArray = Array.from(nextDataMap.entries()).map(([key, value]) => ({ key, value }))
+    // 定时移除高亮
+    const timer = setTimeout(() => {
+      setHighlightingKeys(prev => {
+        const next = new Set(prev)
+        changes.forEach(key => next.delete(key))
+        return next
+      })
+    }, highlightDuration)
+    
+    timersRef.current.push(timer)
+  }, [changes, highlightDuration])
 
-    const prevDataMap = prevDataMapRef.current
-    const changes: (string | number)[] = []
-    const newDeletions: (string | number)[] = []
+  // Effect 2: 处理删除动画 (Deleting Animation)
+  useEffect(() => {
+    if (deletions.length === 0) return
 
-    // 2. 检测新增和修改
-    for (const [key, value] of nextDataMap.entries()) {
-      const prevValue = prevDataMap.get(key)
-      // 如果之前不存在(新增) 或 值不相等(修改)
-      if (!prevDataMap.has(key) || prevValue !== value) {
-        changes.push(key)
-      }
-    }
-
-    // 3. 检测删除
-    for (const key of prevDataMap.keys()) {
-      if (!nextDataMap.has(key)) {
-        newDeletions.push(key)
-        // 保存被删除项的最后状态
-        deletingItemsRef.current.set(key, { 
-          key, 
-          value: prevDataMap.get(key)! 
-        })
-      }
-    }
-
-    // 4. 更新高亮状态
-    if (changes.length > 0) {
-      setAutoHighlightKeys(prev => [...prev, ...changes])
-      setTimeout(() => {
-        setAutoHighlightKeys(prev => prev.filter(k => !changes.includes(k)))
-      }, highlightDuration)
-    }
-
-    // 5. 更新删除状态
-    if (newDeletions.length > 0) {
-      setDeletingKeys(prev => [...prev, ...newDeletions])
-      // 动画结束后清理
-      setTimeout(() => {
-        setDeletingKeys(prev => prev.filter(k => !newDeletions.includes(k)))
-        newDeletions.forEach(k => deletingItemsRef.current.delete(k))
-        // 强制刷新 displayData 以移除已彻底删除的项
-        // 注意：这里通过 setDisplayData 的回调来重新计算
-        setDisplayData(current => current.filter(item => !newDeletions.includes(item.key)))
-      }, 500) // 500ms 对应 CSS transition duration
-    }
-
-    // 6. 构建新的 displayData
-    // 改进策略：基于上一帧的 displayData 来构建，以保持顺序稳定
-    setDisplayData(prevDisplayData => {
-      // 1. 创建一个 Set 用于快速查找新数据中的 keys
-      const existingKeys = new Set<string | number>()
-      
-      const newDisplayList: MapItem[] = []
-
-      // 2. 遍历旧列表，决定每一项是"更新"、"保留(正在删除)"还是"移除"
-      for (const item of prevDisplayData) {
-        // 如果新数据里有这个 key，说明是更新或未变
-        if (nextDataMap.has(item.key)) {
-          newDisplayList.push({ key: item.key, value: nextDataMap.get(item.key)! })
-          existingKeys.add(item.key)
-        }
-        // 如果新数据里没有，但在 deletingItemsRef 里（说明正在删除动画中），保留它
-        else if (deletingItemsRef.current.has(item.key)) {
-          newDisplayList.push(deletingItemsRef.current.get(item.key)!)
-        }
-        // 否则，说明该项已彻底删除，不再添加到新列表
-      }
-
-      // 3. 追加新增加的项（在新数据中存在，但不在旧列表中处理过的）
-      for (const item of nextDataArray) {
-        if (!existingKeys.has(item.key)) {
-          newDisplayList.push(item)
-        }
-      }
-
-      return newDisplayList
+    // 标记为正在删除
+    setDeletingKeys(prev => {
+      const next = new Set(prev)
+      deletions.forEach(key => next.add(key))
+      return next
     })
 
-    // 更新 ref
-    prevDataMapRef.current = nextDataMap
+    // 延迟后移除删除标记并更新显示数据
+    const timer = setTimeout(() => {
+      setDeletingKeys(prev => {
+        const next = new Set(prev)
+        deletions.forEach(key => next.delete(key))
+        return next
+      })
+      setDisplayData(curr => curr.filter(item => !deletions.includes(item.key)))
+    }, 500)
+    
+    timersRef.current.push(timer)
+  }, [deletions])
 
-  }, [data, highlightDuration])
+  // Effect 3: 同步显示数据 (Data Sync)
+  useEffect(() => {
+    setDisplayData(prevList => {
+      const newList: MapItem[] = []
+      const processedKeys = new Set<string | number>()
 
-  const mergedHighlightKeys = Array.from(new Set([...autoHighlightKeys, ...externalHighlightKeys]))
+      // A. 保留现有项（更新值或保留删除中的项）
+      prevList.forEach(item => {
+        if (nextDataMap.has(item.key)) {
+          // 更新现有项的值
+          newList.push({ key: item.key, value: nextDataMap.get(item.key)! })
+          processedKeys.add(item.key)
+        } else if (deletions.includes(item.key) || deletingKeys.has(item.key)) {
+          // 保留正在删除的项（用于动画）
+          newList.push(item)
+          processedKeys.add(item.key)
+        }
+      })
+
+      // B. 添加新项
+      nextDataMap.forEach((value, key) => {
+        if (!processedKeys.has(key)) {
+          newList.push({ key, value })
+        }
+      })
+      
+      return newList
+    })
+  }, [nextDataMap, deletions, deletingKeys]) 
+
+  // 4. 合并高亮 Keys
+  const mergedHighlightKeys = useMemo(() => {
+    const merged = new Set(highlightingKeys)
+    externalHighlightKeys.forEach(key => merged.add(key))
+    return Array.from(merged)
+  }, [highlightingKeys, externalHighlightKeys])
+  
+  // 5. 清理定时器（防止内存泄漏）
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(timer => clearTimeout(timer))
+      timersRef.current = []
+    }
+  }, [])
 
   return (
     <MapVisualizer
@@ -127,7 +173,7 @@ export function SmartMapVisualizer({
       title={title}
       className={className}
       highlightKeys={mergedHighlightKeys}
-      deletingKeys={deletingKeys}
+      deletingKeys={Array.from(deletingKeys)}
     />
   )
 }
