@@ -10,13 +10,15 @@ interface MapVisualizerProps {
   title?: string
   className?: string
   highlightKeys?: (string | number)[]
+  deletingKeys?: (string | number)[]
 }
 
 export function MapVisualizer({ 
   data, 
   title = "Map Visualization", 
   className,
-  highlightKeys = []
+  highlightKeys = [],
+  deletingKeys = []
 }: MapVisualizerProps) {
   // 统一数据格式为数组
   const items: MapItem[] = data instanceof Map 
@@ -41,21 +43,25 @@ export function MapVisualizer({
           ) : (
             items.map((item, index) => {
               const isHighlighted = highlightKeys.includes(item.key)
+              const isDeleting = deletingKeys.includes(item.key)
               
               return (
                 <div 
                   key={`${item.key}-${index}`}
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1.5 transition-all duration-500",
-                    isHighlighted 
-                      ? "bg-indigo-50 dark:bg-indigo-900/20" 
-                      : "hover:bg-muted/40"
+                    isDeleting 
+                      ? "bg-red-500/10 opacity-50 scale-95" 
+                      : isHighlighted 
+                        ? "bg-indigo-50 dark:bg-indigo-900/20" 
+                        : "hover:bg-muted/40"
                   )}
                 >
                   {/* Key */}
                   <span className={cn(
                     "min-w-[2rem] text-purple-600 dark:text-purple-400",
-                    isHighlighted && "font-bold scale-105 transition-transform origin-left"
+                    (isHighlighted || isDeleting) && "font-bold scale-105 transition-transform origin-left",
+                    isDeleting && "text-red-500 dark:text-red-400 line-through"
                   )}>
                     {typeof item.key === 'string' ? `"${item.key}"` : item.key}
                   </span>
@@ -65,7 +71,8 @@ export function MapVisualizer({
                   {/* Value */}
                   <span className={cn(
                     "text-emerald-600 dark:text-emerald-400",
-                    isHighlighted && "font-bold scale-105 transition-transform origin-left"
+                    (isHighlighted || isDeleting) && "font-bold scale-105 transition-transform origin-left",
+                    isDeleting && "text-red-500 dark:text-red-400 line-through"
                   )}>
                     {item.value}
                   </span>
