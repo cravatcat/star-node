@@ -12,8 +12,8 @@ export interface RouteConfig {
 
 export const routes: RouteConfig[] = [
   {
-    path: "/",
-    label: "简介",
+    path: "/*",
+    label: "数据结构",
     element: <HomePage />,
   },
   {

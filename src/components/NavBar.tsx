@@ -36,8 +36,20 @@ export function NavBar() {
           <NavigationMenu>
             <NavigationMenuList>
               {routes.map(route => {
-                const linkPath = route.path.replace(/\/\*$/, "")
-                const isActive = location.pathname === linkPath || (linkPath !== "/" && location.pathname.startsWith(linkPath))
+                const linkPath = route.path.replace(/\/\*$/, "") || "/"
+                
+                // Check if current location matches this route
+                let isActive = false
+                if (linkPath === "/") {
+                  // For root path, it's active if we are not in another defined route
+                  const otherPaths = routes
+                    .map(r => r.path.replace(/\/\*$/, "") || "/")
+                    .filter(p => p !== "/")
+                  
+                  isActive = !otherPaths.some(path => location.pathname.startsWith(path))
+                } else {
+                  isActive = location.pathname.startsWith(linkPath)
+                }
                 
                 return (
                   <NavigationMenuItem key={route.path}>

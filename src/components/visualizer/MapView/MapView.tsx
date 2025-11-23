@@ -1,38 +1,23 @@
 import { cn } from "@/lib/utils"
+import type { MapItem, MapViewProps } from "./types"
 
-export interface MapItem {
-  key: string | number
-  value: any
-}
-
-interface MapVisualizerProps {
-  data: MapItem[] | Map<string | number, any> | Record<string, any>
-  title?: string
-  className?: string
-  highlightKeys?: (string | number)[]
-  deletingKeys?: (string | number)[]
-  isNested?: boolean
-}
-
-export function MapVisualizer({ 
+export function MapView({ 
   data, 
-  title = "Map Visualization", 
+  title = "Map View", 
   className,
   highlightKeys = [],
   deletingKeys = [],
   isNested = false
-}: MapVisualizerProps) {
-  // 统一数据格式为数组
+}: MapViewProps) {
+  // Standardize data format to array
   const items: MapItem[] = (() => {
     if (data instanceof Map) {
       return Array.from(data.entries()).map(([key, value]) => ({ key, value }))
     }
     if (Array.isArray(data)) {
-      // Try to detect if it's already MapItem[]
       if (data.length > 0 && typeof data[0] === 'object' && data[0] !== null && 'key' in data[0] && 'value' in data[0]) {
         return data as MapItem[]
       }
-      // Otherwise convert array to index-based map
       return data.map((value, index) => ({ key: index, value }))
     }
     if (typeof data === 'object' && data !== null) {
@@ -66,7 +51,7 @@ export function MapVisualizer({
         </div>
       )}
       
-      <div className="rounded-lg p-4 shadow-sm bg-card border">
+      <div className="rounded-lg p-4 shadow-sm bg-card">
         <div className="text-muted-foreground select-none">Map {'{'}</div>
         
         <div className="flex flex-col gap-1 pl-4 my-2">
@@ -145,10 +130,10 @@ function MapContent({
             {/* Value for Complex Types (Nested) */}
             {isComplex && (
               <div className="ml-2">
-                <MapVisualizer 
+                <MapView 
                   data={item.value} 
                   isNested={true}
-                  highlightKeys={[]} // Don't pass highlights deep by default unless logic requires
+                  highlightKeys={[]} 
                   deletingKeys={[]}
                 />
               </div>
