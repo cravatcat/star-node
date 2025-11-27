@@ -27,7 +27,11 @@ export function ArrayView({
                 {items.length === 0 ? (
                     <span className="text-muted-foreground/50 italic select-none">// empty</span>
                 ) : (
-                    items.map((value, index) => {
+                    items.map((item, index) => {
+                        // Handle both primitive values and TrackedItem objects
+                        const value = (item && typeof item === 'object' && 'value' in item) ? item.value : item
+                        const key = (item && typeof item === 'object' && 'id' in item) ? item.id : index
+
                         const isHighlighted = highlightIndices.includes(index)
                         const isActive = activeIndices.includes(index)
                         const isDeleting = deletingIndices.includes(index)
@@ -36,7 +40,7 @@ export function ArrayView({
                         const currentPointers = pointers.filter(p => p.index === index)
 
                         return (
-                            <div key={index} className="relative flex flex-col items-center group">
+                            <div key={key} className="relative flex flex-col items-center group transition-all duration-300 ease-in-out">
                                 {/* Pointers Area */}
                                 <div className="absolute -top-6 w-full h-6 flex justify-center items-end pointer-events-none">
                                     {currentPointers.length > 1 ? (
@@ -48,29 +52,31 @@ export function ArrayView({
                                     )}
                                 </div>
 
-                                {/* Array Element */}
-                                <div
-                                    className={cn(
-                                        "relative flex items-center justify-center min-w-[3rem] h-12 px-3 rounded-md border-2 transition-all duration-300",
-                                        // Base style
-                                        "bg-background border-muted",
-                                        // States
-                                        isActive && "border-primary bg-primary/5 scale-110 z-10 shadow-md",
-                                        isHighlighted && !isActive && "border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20",
-                                        isDeleting && "border-red-400 bg-red-50 dark:bg-red-900/20 opacity-50 scale-90",
-                                        !isActive && !isHighlighted && !isDeleting && "hover:border-muted-foreground/50"
-                                    )}
-                                >
-                                    <span className={cn(
-                                        "text-base font-medium transition-colors",
-                                        isActive && "text-primary font-bold",
-                                        isDeleting && "text-red-500 line-through decoration-2"
-                                    )}>
-                                        {String(value)}
-                                    </span>
+                                {/* Array Element Container */}
+                                <div className="flex flex-col items-center gap-1">
+                                    <div
+                                        className={cn(
+                                            "relative flex items-center justify-center min-w-[3rem] h-12 px-3 rounded-md border-2 transition-all duration-300",
+                                            // Base style
+                                            "bg-background border-muted",
+                                            // States
+                                            isActive && "border-primary bg-primary/5 scale-110 z-10 shadow-md",
+                                            isHighlighted && !isActive && "border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20",
+                                            isDeleting && "border-red-400 bg-red-50 dark:bg-red-900/20 opacity-50 scale-90",
+                                            !isActive && !isHighlighted && !isDeleting && "hover:border-muted-foreground/50"
+                                        )}
+                                    >
+                                        <span className={cn(
+                                            "text-base font-medium transition-colors",
+                                            isActive && "text-primary font-bold",
+                                            isDeleting && "text-red-500 line-through decoration-2"
+                                        )}>
+                                            {String(value)}
+                                        </span>
+                                    </div>
 
                                     {/* Index Label */}
-                                    <div className="absolute -bottom-5 text-[10px] text-muted-foreground/60 font-sans">
+                                    <div className="text-[10px] text-muted-foreground/60 font-sans">
                                         {index}
                                     </div>
                                 </div>

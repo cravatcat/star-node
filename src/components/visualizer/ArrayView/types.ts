@@ -18,6 +18,9 @@ export interface ArrayViewProps {
     highlightIndices?: number[]
     activeIndices?: number[]
     deletingIndices?: number[]
+    // If data items are objects with IDs, we can use them.
+    // Or we can pass an optional key extractor or pre-calculated keys.
+    // For now, let's allow data to be an array of objects that might have an id.
 }
 
 export interface LiveArrayViewProps {
@@ -26,4 +29,10 @@ export interface LiveArrayViewProps {
     className?: string
     pointers?: ArrayViewPointer[]
     highlightDuration?: number
+}
+
+// Internal type for stable ID tracking
+export interface TrackedItem {
+    id: string
+    value: any
 }
