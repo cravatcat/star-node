@@ -39,9 +39,13 @@ export function ArrayView({
                             <div key={index} className="relative flex flex-col items-center group">
                                 {/* Pointers Area */}
                                 <div className="absolute -top-6 w-full h-6 flex justify-center items-end pointer-events-none">
-                                    {currentPointers.map((pointer, i) => (
-                                        <PointerIndicator key={i} pointer={pointer} />
-                                    ))}
+                                    {currentPointers.length > 1 ? (
+                                        <GroupedPointerIndicator pointers={currentPointers} />
+                                    ) : (
+                                        currentPointers.map((pointer, i) => (
+                                            <PointerIndicator key={i} pointer={pointer} />
+                                        ))
+                                    )}
                                 </div>
 
                                 {/* Array Element */}
@@ -79,6 +83,37 @@ export function ArrayView({
     )
 }
 
+function GroupedPointerIndicator({ pointers }: { pointers: ArrayViewPointer[] }) {
+    // Sort pointers if needed, or keep order.
+    // We will render a single container with all labels inline or stacked compactly.
+    // For simplicity, let's render them horizontally in a pill.
+    
+    return (
+        <div className="absolute flex flex-col items-center transition-all duration-300 -translate-y-1">
+            <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-background/90 backdrop-blur-sm shadow-sm border border-border/50 z-20 mb-0.5">
+                    {pointers.map((pointer, i) => (
+                        <span
+                            key={i}
+                            className="text-[10px] font-bold whitespace-nowrap"
+                            style={{ color: pointer.color }}
+                        >
+                            {pointer.label}
+                            {i < pointers.length - 1 && <span className="text-muted-foreground/50 ml-1">,</span>}
+                        </span>
+                    ))}
+                </div>
+                
+                {/* Unified connection line/dot */}
+                <div className="flex flex-col items-center">
+                    <div className="w-2 h-2 rounded-full shadow-sm z-10 bg-foreground/20" />
+                    <div className="w-0.5 h-2 bg-foreground/20" />
+                </div>
+            </div>
+        </div>
+    )
+}
+
 function PointerIndicator({ pointer }: { pointer: ArrayViewPointer }) {
     // Determine vertical offset based on slot or default stacking
     // If slot is provided, use it. Otherwise, we might need logic to stack them if multiple pointers are on the same index without slots.
@@ -87,7 +122,8 @@ function PointerIndicator({ pointer }: { pointer: ArrayViewPointer }) {
     // Let's use absolute positioning with transforms for slots.
 
     const slot = pointer.slot ?? 0
-    const translateY = -slot * 8 // Stack upwards
+    // Increase vertical spacing between stacked pointers
+    const translateY = -slot * 24 // Stack upwards more aggressively to clear labels
 
     return (
         <div

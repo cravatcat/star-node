@@ -7,7 +7,7 @@ export interface ArrayViewPointer {
     index: number
     label?: string
     color?: string
-    slot?: 0 | 1 | 2 // Which vertical slot the pointer occupies (0 is closest to element)
+    slot?: number // Which vertical slot the pointer occupies (0 is closest to element)
 }
 
 export interface ArrayViewProps {

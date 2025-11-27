@@ -107,7 +107,30 @@ export function LiveArrayView({
                 slot: 0
             })
         }
-        return list
+
+        // Post-process to assign slots for overlapping pointers to avoid visual merging
+        const pointersByIndex = new Map<number, ArrayViewPointer[]>()
+        list.forEach(p => {
+            const idx = p.index
+            if (!pointersByIndex.has(idx)) {
+                pointersByIndex.set(idx, [])
+            }
+            pointersByIndex.get(idx)!.push(p)
+        })
+
+        const result: ArrayViewPointer[] = []
+        pointersByIndex.forEach((group) => {
+            group.forEach((p, i) => {
+                // Assign slot based on index in the group to stack them vertically
+                // Preserving existing props, just overriding slot
+                result.push({
+                    ...p,
+                    slot: i
+                })
+            })
+        })
+
+        return result
     }, [pointers, curIndex, data.length])
 
     // Merge highlights
