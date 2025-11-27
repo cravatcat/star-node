@@ -1,8 +1,9 @@
-import { Route, Routes, useParams } from "react-router-dom"
+import { Navigate, Route, Routes, useParams } from "react-router-dom"
 import { MarkdownPreview } from "@/components/markdown/MarkdownPreview"
 import { TableOfContents } from "@/components/TableOfContents"
 import { DocLayout } from "@/layouts/DocLayout"
 import { Sidebar } from "@/components/Sidebar"
+import { useUpdateLastVisited, getLastVisited } from "@/hooks/useLastVisited"
 
 // 导入 Markdown 文件
 import twoSumMd from "@/algorithmNote/ 1-twoSum/1.twoSum.md?raw"
@@ -36,6 +37,8 @@ function AlgorithmProblem() {
   const { id } = useParams()
   const problem = allProblems.find(p => p.id === id)
 
+  useUpdateLastVisited("last-visited-algorithm", id || "")
+
   if (!problem) {
     return (
       <DocLayout sidebar={<Sidebar title="题目列表" items={sidebarItems} />}>
@@ -54,41 +57,12 @@ function AlgorithmProblem() {
   )
 }
 
-function AlgorithmList() {
-  return (
-    <DocLayout sidebar={<Sidebar title="题目列表" items={sidebarItems} />}>
-      <div className="flex h-full flex-col items-center justify-center space-y-4 rounded-lg p-8 text-center animate-in fade-in-50">
-        <div className="rounded-full bg-muted p-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="h-8 w-8 text-muted-foreground"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-            />
-          </svg>
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold tracking-tight">准备好开始学习了吗？</h2>
-          <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-            请从左侧列表中选择一道算法题目，查看详细的题解分析和代码实现。
-          </p>
-        </div>
-      </div>
-    </DocLayout>
-  )
-}
-
 export default function AlgorithmPage() {
+  const lastVisited = getLastVisited("last-visited-algorithm", "1")
+  console.log(123123, lastVisited)
   return (
     <Routes>
-      <Route index element={<AlgorithmList />} />
+      <Route index element={<Navigate to={lastVisited} replace />} />
       <Route path=":id" element={<AlgorithmProblem />} />
     </Routes>
   )

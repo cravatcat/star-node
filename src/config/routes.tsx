@@ -1,6 +1,7 @@
 import { lazy } from "react"
 
-const HomePage = lazy(() => import("@/pages/HomePage"))
+const IndexPage = lazy(() => import("@/pages/IndexPage"))
+const DataStructuresPage = lazy(() => import("@/pages/DataStructuresPage"))
 const AlgorithmPage = lazy(() => import("@/pages/AlgorithmPage"))
 const ReactBookPage = lazy(() => import("@/pages/ReactBookPage"))
 
@@ -12,18 +13,33 @@ export interface RouteConfig {
 
 export const routes: RouteConfig[] = [
   {
-    path: "/*",
+    path: "/",
+    label: "首页",
+    element: <IndexPage />,
+  },
+  {
+    path: "/datastructures/*",
     label: "数据结构",
-    element: <HomePage />,
+    element: <DataStructuresPage />,
   },
   {
     path: "/algorithm/*",
-    label: "算法",
+    label: "算法100",
     element: <AlgorithmPage />,
   },
   {
+    path: "/operatingsystem/*",
+    label: "操作系统",
+    element: null,
+  },
+  {
+    path: "/llm/*",
+    label: "大模型",
+    element: null,
+  },
+  {
     path: "/reactbook",
-    label: "react-book",
+    label: 'React "OS"',
     element: <ReactBookPage />,
   },
 ]
