@@ -28,7 +28,7 @@ export const routes: RouteConfig[] = [
     element: <AlgorithmPage />,
   },
   {
-    path: "/operatingsystem/*",
+    path: "/os/*",
     label: "操作系统",
     element: null,
   },
@@ -42,4 +42,9 @@ export const routes: RouteConfig[] = [
     label: 'React "OS"',
     element: <ReactBookPage />,
   },
+  // {
+  //   path: "/businessDesign",
+  //   label: '常见业务系统设计',
+  //   element: '售卖系统 ab系统 电商 广告投放 问卷',
+  // },
 ]
