@@ -8,6 +8,8 @@ import { useUpdateLastVisited, getLastVisited } from "@/hooks/useLastVisited"
 // 导入 Markdown 文件
 import twoSumMd from "@/algorithmNote/ 1-twoSum/1.twoSum.md?raw"
 import groupAnagramsMd from "@/algorithmNote/2-groupAnagrams/2.groupAnagrams.md?raw"
+import longestConsecutiveMd from "@/algorithmNote/3-longestConsecutive/3.longestConsecutive.md?raw"
+
 
 // 题目数据配置
 const problems = [
@@ -20,6 +22,11 @@ const problems = [
     id: "2",
     title: "字母异位词分组",
     content: groupAnagramsMd
+  },
+  {
+    id: "3",
+    title: "最长连续序列",
+    content: longestConsecutiveMd
   }
 ]
 
