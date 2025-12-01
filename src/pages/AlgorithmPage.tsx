@@ -36,6 +36,7 @@ import mergeTwoListsMd from "@/algorithmNote/27-mergeTwoLists/27.mergeTwoLists.m
 import addTwoNumbersMd from "@/algorithmNote/28-addTwoNumbers/28.addTwoNumbers.md?raw"
 import removeNthFromEndMd from "@/algorithmNote/29-removeNthFromEnd/29.removeNthFromEnd.md?raw"
 import swapPairsMd from "@/algorithmNote/30-swapPairs/30.swapPairs.md?raw"
+import reverseKGroupMd from "@/algorithmNote/31-reverseKGroup/31.reverseKGroup.md?raw"
 
 
 // 题目数据配置
@@ -189,6 +190,11 @@ const problems = [
     id: "30",
     title: "两两交换链表中的节点",
     content: swapPairsMd
+  },
+  {
+    id: "31",
+    title: "K 个一组翻转链表",
+    content: reverseKGroupMd
   }
 ]
 
