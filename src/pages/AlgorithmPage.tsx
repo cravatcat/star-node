@@ -24,6 +24,18 @@ import rotateMd from "@/algorithmNote/15-rotate/15.rotate.md?raw"
 import productExceptSelfMd from "@/algorithmNote/16-productExceptSelf/16.productExceptSelf.md?raw"
 import firstMissingPositiveMd from "@/algorithmNote/17-firstMissingPositive/17.firstMissingPositive.md?raw"
 import setZeroesMd from "@/algorithmNote/18-setZeroes/18.setZeroes.md?raw"
+import spiralOrderMd from "@/algorithmNote/19-spiralOrder/19.spiralOrder.md?raw"
+import rotateImageMd from "@/algorithmNote/20-rotate/20.rotate.md?raw"
+import searchMatrixMd from "@/algorithmNote/21-searchMatrix/21.searchMatrix.md?raw"
+import getIntersectionNodeMd from "@/algorithmNote/22-getIntersectionNode/22.getIntersectionNode.md?raw"
+import reverseListMd from "@/algorithmNote/23-reverseList/23.reverseList.md?raw"
+import isPalindromeMd from "@/algorithmNote/24-isPalindrome/24.isPalindrome.md?raw"
+import hasCycleMd from "@/algorithmNote/25-hasCycle/25.hasCycle.md?raw"
+import detectCycleMd from "@/algorithmNote/26-detectCycle/26.detectCycle.md?raw"
+import mergeTwoListsMd from "@/algorithmNote/27-mergeTwoLists/27.mergeTwoLists.md?raw"
+import addTwoNumbersMd from "@/algorithmNote/28-addTwoNumbers/28.addTwoNumbers.md?raw"
+import removeNthFromEndMd from "@/algorithmNote/29-removeNthFromEnd/29.removeNthFromEnd.md?raw"
+import swapPairsMd from "@/algorithmNote/30-swapPairs/30.swapPairs.md?raw"
 
 
 // 题目数据配置
@@ -117,6 +129,66 @@ const problems = [
     id: "18",
     title: "矩阵置零",
     content: setZeroesMd
+  },
+  {
+    id: "19",
+    title: "螺旋矩阵",
+    content: spiralOrderMd
+  },
+  {
+    id: "20",
+    title: "旋转图像",
+    content: rotateImageMd
+  },
+  {
+    id: "21",
+    title: "搜索二维矩阵 II",
+    content: searchMatrixMd
+  },
+  {
+    id: "22",
+    title: "相交链表",
+    content: getIntersectionNodeMd
+  },
+  {
+    id: "23",
+    title: "反转链表",
+    content: reverseListMd
+  },
+  {
+    id: "24",
+    title: "回文链表",
+    content: isPalindromeMd
+  },
+  {
+    id: "25",
+    title: "环形链表",
+    content: hasCycleMd
+  },
+  {
+    id: "26",
+    title: "环形链表 II",
+    content: detectCycleMd
+  },
+  {
+    id: "27",
+    title: "合并两个有序链表",
+    content: mergeTwoListsMd
+  },
+  {
+    id: "28",
+    title: "两数相加",
+    content: addTwoNumbersMd
+  },
+  {
+    id: "29",
+    title: "删除链表的倒数第 N 个结点",
+    content: removeNthFromEndMd
+  },
+  {
+    id: "30",
+    title: "两两交换链表中的节点",
+    content: swapPairsMd
   }
 ]
 
