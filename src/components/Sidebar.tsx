@@ -24,7 +24,7 @@ export function Sidebar({ title = "目录", items, className }: SidebarProps) {
       {title && (
         <h2 className="mb-4 text-lg font-semibold tracking-tight">{title}</h2>
       )}
-      <ScrollArea className="h-[calc(100vh-10rem)]">
+      <ScrollArea className="h-[calc(100vh-12rem)]">
         <div className="flex flex-col gap-1 pr-4">
           {items.map((item) => {
             const isActive = location.pathname === item.href

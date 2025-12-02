@@ -4,6 +4,8 @@ import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import type { Components } from 'react-markdown'
+import { useState } from 'react'
+import { Check, Copy } from 'lucide-react'
 import 'katex/dist/katex.min.css'
 
 import { generateSlug } from '@/lib/utils'
@@ -11,6 +13,40 @@ import { generateSlug } from '@/lib/utils'
 interface MarkdownPreviewProps {
   content: string
   className?: string
+}
+
+function CodeBlock({ language, children, ...props }: any) {
+  const [isCopied, setIsCopied] = useState(false)
+
+  const copyToClipboard = async () => {
+    const text = String(children).replace(/\n$/, '')
+    await navigator.clipboard.writeText(text)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
+
+  return (
+    <div className="relative group" style={{ margin: '1rem 0' }}>
+      <button
+        onClick={copyToClipboard}
+        className="absolute right-2 top-2 p-1.5 rounded-md bg-white/80 text-gray-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:text-gray-900 border border-gray-200 z-10 cursor-pointer"
+        title="Copy code"
+      >
+        {isCopied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+      </button>
+      <SyntaxHighlighter
+        style={oneLight as any}
+        language={language}
+        PreTag="div"
+        showLineNumbers
+        wrapLines={true}
+        lineNumberStyle={{ color: '#9ca3af', paddingRight: '1em' }}
+        {...props}
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    </div>
+  )
 }
 
 export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProps) {
@@ -30,19 +66,9 @@ export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProp
       const { ref, ...rest } = props
 
       return (
-        <div style={{ margin: '1rem 0' }}>
-          <SyntaxHighlighter
-            style={oneLight as any}
-            language={match[1]}
-            PreTag="div"
-            showLineNumbers
-            wrapLines={true}
-            lineNumberStyle={{ color: '#9ca3af', paddingRight: '1em' }}
-            {...rest}
-          >
-            {String(children).replace(/\n$/, '')}
-          </SyntaxHighlighter>
-        </div>
+        <CodeBlock language={match[1]} {...rest}>
+          {children}
+        </CodeBlock>
       )
     },
     // 优化表格样式
