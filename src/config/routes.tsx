@@ -39,7 +39,7 @@ export const routes: RouteConfig[] = [
   },
   {
     path: "/reactbook",
-    label: 'React "OS"',
+    label: 'React',
     element: <ReactBookPage />,
   },
   // {
