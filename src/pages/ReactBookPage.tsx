@@ -2,7 +2,7 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom"
 import { MarkdownPreview } from "@/components/markdown/MarkdownPreview"
 import { TableOfContents } from "@/components/TableOfContents"
 import { DocLayout } from "@/layouts/DocLayout"
-import { Sidebar, SidebarItem } from "@/components/Sidebar"
+import { Sidebar, type SidebarItem } from "@/components/Sidebar"
 import { useUpdateLastVisited, getLastVisited } from "@/hooks/useLastVisited"
 
 // 1. Import all markdown files
@@ -22,26 +22,49 @@ interface DocItem {
 const docs: Record<string, DocItem> = {}
 const sidebarStructure: SidebarItem[] = []
 
+// Filter out these specific files from the sidebar
+const IGNORED_FILES = [
+  "index",
+  "01-基础与组件系统",
+  "02-Hooks深度解析",
+  "03-自定义Hooks试炼",
+  "04-路由与状态管理",
+  "05-React原理篇",
+  "06-React性能优化"
+]
+
+// Helper to strip prefix
+const stripPrefix = (s: string) => s.replace(/^\d+(\.\d+)?[-_]/, '')
+
 // Helper to build tree
 const addToTree = (items: SidebarItem[], parts: string[], fullPath: string, title: string) => {
   const part = parts[0]
   const isLeaf = parts.length === 1
 
+  // If this part matches any ignored file name, skip it entirely
+  // This handles both file leaves and directory names if they matched (though less likely for dirs)
+  if (IGNORED_FILES.includes(part)) {
+      return
+  }
+
   if (isLeaf) {
     items.push({
       id: fullPath,
-      label: title, // Keep full title for now, or strip prefix
+      label: stripPrefix(title), // Strip prefix for display
+      originalLabel: title,      // Keep original for sorting
       href: `/reactbook/${fullPath}`,
       title: title
     })
     return
   }
 
-  let group = items.find(i => i.label === part)
+  // Find group by id (which stores the original directory name)
+  let group = items.find(i => i.id === part)
   if (!group) {
     group = {
       id: part,
-      label: part,
+      label: stripPrefix(part),
+      originalLabel: part,
       items: []
     }
     items.push(group)
@@ -58,7 +81,7 @@ Object.keys(modules).forEach(path => {
   const relativePath = match[1] // e.g. "Hooks深度解析/4.1-useState"
   const parts = relativePath.split('/')
   const fileName = parts[parts.length - 1]
-  
+
   // Store in docs map
   docs[relativePath] = {
     path: relativePath,
@@ -79,14 +102,17 @@ const sortItems = (items: SidebarItem[]) => {
        return m ? parseFloat(m[1]) : 9999
      }
      
-     const numA = getNum(a.label)
-     const numB = getNum(b.label)
+     const labelA = a.originalLabel || a.label
+     const labelB = b.originalLabel || b.label
+
+     const numA = getNum(labelA)
+     const numB = getNum(labelB)
      
      if (numA !== 9999 && numB !== 9999 && numA !== numB) {
        return numA - numB
      }
      
-     return a.label.localeCompare(b.label, "zh-CN")
+     return labelA.localeCompare(labelB, "zh-CN")
   })
   
   items.forEach(i => {

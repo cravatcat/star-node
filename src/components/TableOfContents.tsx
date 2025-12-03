@@ -33,8 +33,16 @@ export function TableOfContents({ content }: TableOfContentsProps) {
       if (match) {
         const level = match[1].length
         const text = match[2].trim()
+        
+        // Skip titles that contain "模拟实现" or "实现思路"
+        if (text.includes('模拟实现') || text.includes('实现思路')) {
+            return
+        }
+
         const id = generateSlug(text)
-        items.push({ id, text, level })
+        // Remove prefix like "1.1 " or "10.2 " for display text
+        const displayText = text.replace(/^\d+(\.\d+)?\s+/, '')
+        items.push({ id, text: displayText, level })
       }
     })
 

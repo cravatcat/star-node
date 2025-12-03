@@ -2,6 +2,7 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import type { Components } from 'react-markdown'
 import { useState } from 'react'
@@ -9,6 +10,14 @@ import { Check, Copy } from 'lucide-react'
 import 'katex/dist/katex.min.css'
 
 import { generateSlug } from '@/lib/utils'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface MarkdownPreviewProps {
   content: string
@@ -71,16 +80,13 @@ export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProp
         </CodeBlock>
       )
     },
-    // 优化表格样式
-    table({ children }) {
-      return (
-        <div className="overflow-x-auto my-4">
-          <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
-            {children}
-          </table>
-        </div>
-      )
-    },
+    // 优化表格样式 - 使用 UI 组件
+    table: ({ children }) => <Table>{children}</Table>,
+    thead: ({ children }) => <TableHeader>{children}</TableHeader>,
+    tbody: ({ children }) => <TableBody>{children}</TableBody>,
+    tr: ({ children }) => <TableRow>{children}</TableRow>,
+    th: ({ children }) => <TableHead>{children}</TableHead>,
+    td: ({ children }) => <TableCell>{children}</TableCell>,
     // 优化引用块样式
     blockquote({ children }) {
       return (
@@ -98,7 +104,9 @@ export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProp
     h1({ children }) {
       const text = String(children)
       const id = generateSlug(text)
-      return <h1 id={id} className="text-3xl font-bold mt-6 mb-4 text-gray-900 scroll-mt-20">{children}</h1>
+      // 去掉标题前面的 "x.x " 这种数字前缀
+      const cleanText = text.replace(/^\d+(\.\d+)?\s+/, '')
+      return <h1 id={id} className="text-3xl font-bold mt-6 mb-4 text-gray-900 scroll-mt-20">{cleanText}</h1>
     },
     h2({ children }) {
       const text = String(children)
@@ -118,7 +126,7 @@ export function MarkdownPreview({ content, className = '' }: MarkdownPreviewProp
     <div className={`prose prose-slate max-w-none prose-code:before:content-none prose-code:after:content-none ${className}`}>
       <ReactMarkdown 
         components={components}
-        remarkPlugins={[remarkMath]}
+        remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[rehypeKatex]}
       >
         {content}

@@ -28,6 +28,11 @@ export const routes: RouteConfig[] = [
     element: <AlgorithmPage />,
   },
   {
+    path: "/reactbook/*",
+    label: 'React',
+    element: <ReactBookPage />,
+  },
+  {
     path: "/os/*",
     label: "操作系统",
     element: null,
@@ -37,11 +42,7 @@ export const routes: RouteConfig[] = [
     label: "大模型",
     element: null,
   },
-  {
-    path: "/reactbook/*",
-    label: 'React',
-    element: <ReactBookPage />,
-  },
+
   // {
   //   path: "/businessDesign",
   //   label: '常见业务系统设计',
