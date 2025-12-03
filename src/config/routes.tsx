@@ -38,7 +38,7 @@ export const routes: RouteConfig[] = [
     element: null,
   },
   {
-    path: "/reactbook",
+    path: "/reactbook/*",
     label: 'React',
     element: <ReactBookPage />,
   },
